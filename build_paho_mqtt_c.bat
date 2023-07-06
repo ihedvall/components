@@ -8,9 +8,20 @@ rem The build directory should exist. The build is done in a sub-directory.
 rem You must use backslash in directory names (K:\foo not k:/foo)
 
 set SOURCE_DIR=%1
+if [%SOURCE_DIR%] == [] set SOURCE_DIR="l:\paho.mqtt.c"
+echo SOURCE DIR: %SOURCE_DIR%
+
 set DEST_DIR=%2
+if [%DEST_DIR%] == [] set DEST_DIR="k:\pahomqttc"
+echo DEST DIR: %DEST_DIR%
+
 set BUILD_DIR=%3
+if [%BUILD_DIR%] == [] set BUILD_DIR="o:\build"
+echo BUILD DIR: %BUILD_DIR%
+
 set BUILD_TOOL=%4
+if [%BUILD_TOOL%] == [] set BUILD_TOOL=msvc
+echo BUILD TOOL: %BUILD_TOOL%
 
 set GENERATOR="Visual Studio 17 2022"
 if %BUILD_TOOL%==gcc set GENERATOR="MinGW Makefiles"
@@ -26,7 +37,8 @@ mkdir "%DEST_DIR%"
 for %%C in ("Debug" "Release") do (
 
 echo Generate MQTT C build environment
-cmake -G %GENERATOR% -S "%SOURCE_DIR%" -B "%BUILD_DIR%\mqttc" -D CMAKE_INSTALL_PREFIX="%DEST_DIR%" -D CMAKE_BUILD_TYPE=%%C %ARCH% -D PAHO_BUILD_STATIC=ON -D PAHO_BUILD_SHARED=OFF -D PAHO_WITH_SSL=ON -D PAHO_ENABLE_TESTING=OFF
+set PROJ_DEF=-D PAHO_BUILD_STATIC=ON -D PAHO_BUILD_SHARED=OFF -D PAHO_WITH_SSL=ON -D PAHO_ENABLE_TESTING=OFF
+cmake -G %GENERATOR% -S "%SOURCE_DIR%" -B "%BUILD_DIR%\mqttc" -D CMAKE_INSTALL_PREFIX="%DEST_DIR%" -D CMAKE_BUILD_TYPE=%%C %ARCH% %PROJ_DEF%
 
 echo Build MQTT C library
 cmake --build "%BUILD_DIR%\mqttc"  --clean-first --parallel 24 --config %%C
