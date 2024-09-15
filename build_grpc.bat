@@ -23,11 +23,11 @@ set BUILD_TOOL=%4
 if [%BUILD_TOOL%] == [] set BUILD_TOOL=msvc
 echo BUILD TOOL: %BUILD_TOOL%
 
-set GENERATOR="Visual Studio 17 2022"
+set GENERATOR="Visual Studio 17 2022" 
 if %BUILD_TOOL%==gcc set GENERATOR="MinGW Makefiles"
 
-set ARCH=
-if %BUILD_TOOL%==msvc set ARCH=-Ax64
+set ARCH=-Ax64
+rem if %BUILD_TOOL%==msvc set ARCH=-Ax64
 if %BUILD_TOOL%==gcc set ARCH=-D OPENSSL_NO_ASM=ON
 
 rmdir "%BUILD_DIR%\grpc" /s /q
@@ -37,17 +37,19 @@ mkdir "%DEST_DIR%"
 
 for %%C in ("Debug" "Release") do (
 
-echo Generate MQTT C build environment
-set PROJ_DEF=-D gRPC_INSTALL=ON -D gRPC_SSL_PROVIDER=package -D gRPC_BUILD_TESTS=OFF -D CMAKE_CXX_STANDARD=20 -D ABSL_PROPAGATE_CXX_STD=ON -D CMAKE_DEBUG_POSTFIX=d
-cmake -G %GENERATOR% -S "%SOURCE_DIR%" -B "%BUILD_DIR%\grpc" -D CMAKE_INSTALL_PREFIX="%DEST_DIR%" -D CMAKE_BUILD_TYPE=%%C %ARCH% %PROJ_DEF%
+echo Generate gRPC C build environment
 
-echo Build MQTT C library
+cmake -G%GENERATOR% -S %SOURCE_DIR% -B %BUILD_DIR%\grpc -DCMAKE_INSTALL_PREFIX=%DEST_DIR% ^
+	-DABSL_PROPAGATE_CXX_STD=ON -DgRPC_INSTALL=ON -DBUILD_SHARED_LIBS=OFF ^
+	-DgRPC_BUILD_TESTS=OFF -DCMAKE_DEBUG_POSTFIX=d -DCMAKE_BUILD_TYPE=%%C %ARCH% %PROJ_DEF%
+
+echo Build gRPC C library
 cmake --build "%BUILD_DIR%\grpc"  --clean-first --parallel 24 --config %%C
 
-echo Install MQTT C library
+echo Install gRPC C library
 cmake  --install "%BUILD_DIR%\grpc" --config %%C --prefix "%DEST_DIR%"
 
 )
 
-echo Removing MQTT C build directory
+echo Removing gRPC C build directory
 rmdir "%BUILD_DIR%\grpc" /s /q

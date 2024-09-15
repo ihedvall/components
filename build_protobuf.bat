@@ -13,10 +13,11 @@ set BUILD_DIR=%3
 set BUILD_TOOL=%4
 
 set GENERATOR="Visual Studio 17 2022"
+rem set GENERATOR="Ninja"
 if %BUILD_TOOL%==gcc set GENERATOR="MinGW Makefiles"
 
-set ARCH=
-if %BUILD_TOOL%==msvc set ARCH=-Ax64 -D protobuf_MSVC_STATIC_RUNTIME=OFF
+set ARCH=-Ax64
+rem if %BUILD_TOOL%==msvc set ARCH=-Dprotobuf_MSVC_STATIC_RUNTIME=ON
 
 rmdir "%BUILD_DIR%\protobuf" /s /q
 mkdir "%BUILD_DIR%\protobuf"
@@ -26,7 +27,19 @@ mkdir "%DEST_DIR%"
 for %%C in ("Debug" "Release") do (
 
 echo Generate PROTOBUF build environment
-cmake -G %GENERATOR% -S "%SOURCE_DIR%" -B "%BUILD_DIR%\protobuf" -D CMAKE_INSTALL_PREFIX="%DEST_DIR%" -D CMAKE_BUILD_TYPE=%%C %ARCH% -D CMAKE_DEBUG_POSTFIX=d -D ZLIB_ROOT=k:/zlib/master -D protobuf_BUILD_TESTS=OFF -D protobuf_BUILD_LIBPROTOC=ON -D protobuf_BUILD_ABSL_PROVIDER=ON
+cmake -G %GENERATOR% -S "%SOURCE_DIR%" -B "%BUILD_DIR%\protobuf" ^
+	-DCMAKE_INSTALL_PREFIX="%DEST_DIR%" ^
+	-DCMAKE_BUILD_TYPE=%%C %ARCH% ^
+	-DCMAKE_CXX_STANDARD=20 ^
+	rem -DCMAKE_DEBUG_POSTFIX=d ^
+	-DABSL_PROPAGATE_CXX_STD=ON ^
+	-Dprotobuf_BUILD_TESTS=OFF ^
+	rem -Dprotobuf_BUILD_LIBPROTOC=ON ^
+	rem -DBUILD_TESTING=OFF ^
+	rem -DBUILD_SHARED_LIBS=OFF  ^
+	-Dprotobuf_MSVC_STATIC_RUNTIME=OFF ^
+	-Dprotobuf_ABSL_PROVIDER="module" ^
+	-Dprotobuf_BUILD_SHARED_LIBS=OFF
 
 echo Build PROTOBUF library
 cmake --build "%BUILD_DIR%\protobuf"  --clean-first --parallel 24 --config %%C
