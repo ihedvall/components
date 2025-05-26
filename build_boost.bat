@@ -71,9 +71,9 @@ echo Building BOOST libraries
 b2 address-model=64 link=static threading=multi runtime-link=shared --build-type=complete stage --build-dir="%BUILD_DIR%\%BUILD_TOOL%" --stagedir="%BUILD_DIR%\stage/%BUILD_TOOL%" -d0 -j24
 
 echo Copy BOOST libraries
-robocopy "%BUILD_DIR%\stage\%BUILD_TOOL%\lib" "%DEST_DIR%\lib" /mt /compress /z /nfl /ndl /njh /nc /ns /xd cmake
+robocopy "%BUILD_DIR%\stage\%BUILD_TOOL%\lib" "%DEST_DIR%\lib" /mt /compress /z /nfl /ndl /njh /nc /ns /s
 
 echo Removing BOOST build directory
-rmdir "%BUILD_DIR%" /s /q
+rem rmdir "%BUILD_DIR%" /s /q
 
 popd
