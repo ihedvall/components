@@ -1,3 +1,4 @@
+ECHO OFF
 rem Usage build_wxwidgets SourceDir DestDir BuildDir Tool.
 rem SourceDir (%1) Full path to the wxwidgets repository.
 rem DestDir (%2) Full path to the destination directory (Example: k:/wxwidgets/master.
@@ -55,7 +56,7 @@ for %%C in ("Debug" "Release") do (
 echo Generate WXWIDGETS build environment
 cmake -G %GENERATOR% -S "%SOURCE_DIR%" -B "%BUILD_DIR%" -D CMAKE_INSTALL_PREFIX="%DEST_DIR%" ^
       -D CMAKE_BUILD_TYPE=%%C %ARCH% -D wxBUILD_SHARED=OFF -D wxBUILD_DEMOS=OFF ^
-      -D wxBUILD_SAMPLES=OFF -D wxBUILD_INSTALL=ON
+      -D wxBUILD_SAMPLES=OFF -D wxBUILD_INSTALL=ON -D wxUSE_LIBWEBP=OFF
 
 echo Build WXWIDGETS library
 cmake --build "%BUILD_DIR%"  --clean-first --parallel 24 --config %%C
